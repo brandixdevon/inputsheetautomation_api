@@ -19,11 +19,34 @@ export class InputSheetController {
     private inputSheetService: InputSheetService,
     private tolerenceRepository: TolerenceMatrixRepository,
   ) {}
+  
   @Post('getVSStylesFromEpixo')
   @HttpCode(200)
   async getVSStylesFromEpixo(@Body() data, @Res() res) {
     res.connection.setTimeout(0);
     const toReturn = await this.inputSheetService.getVSStylesFromEpixo(
+      data.year,
+      data.type,
+    );
+    res.send(toReturn);
+  }
+
+  @Post('getAritziaStylesFromEpixo')
+  @HttpCode(200)
+  async getAritziaStylesFromEpixo(@Body() data, @Res() res) {
+    res.connection.setTimeout(0);
+    const toReturn = await this.inputSheetService.getAritziaStylesFromEpixo(
+      data.year,
+      data.type,
+    );
+    res.send(toReturn);
+  }
+
+  @Post('getPvhStylesFromEpixo')
+  @HttpCode(200)
+  async getPvhStylesFromEpixo(@Body() data, @Res() res) {
+    res.connection.setTimeout(0);
+    const toReturn = await this.inputSheetService.getPvhStylesFromEpixo(
       data.year,
       data.type,
     );

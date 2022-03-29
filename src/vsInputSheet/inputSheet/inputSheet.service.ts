@@ -7,8 +7,6 @@ import { Repository } from 'typeorm';
 let sql = require('mssql');
 const fs = require('fs');
 const config = {
-  //user: 'BEL_COG_User',
-  //password: '0okm9ijn@123',
   user: 'BFF_EAG_User',
   password: 'bffeaguser',
   server: 'bci-ctsql-01\\belctsql', // You can use 'localhost\\instance' to connect to named instance
@@ -19,6 +17,11 @@ const config = {
     enableArithAbort: false,
     encrypt: false,
   },
+  pool: {
+    max: 10,
+    min: 0,
+    idleTimeoutMillis: 30000
+  }
 };
 
 @Injectable()
@@ -28,6 +31,100 @@ export class InputSheetService {
 
   async getVSStylesFromEpixo(year, type): Promise<StylesInYearModel[]> {
     const VSCustomerCodes = ['pink', 'vs'];
+    try {
+      this.logger.log(
+        `getting style list from epixo-started year ${year} , type ${type}`,
+      );
+      let pool = await sql.connect(config);
+      let output = await pool
+        .request()
+        .input('Year', sql.Int, year)
+        .input('Type', sql.VarChar(100), type)
+        .execute('spGetStylesByYear');
+      this.logger.log(
+        `getting style list from epixo-successfull ${year} , type ${type}`,
+      );
+
+      let stylesToReturn: StylesInYearModel[] = [];
+      output.recordsets[0].forEach(record => {
+        if (
+          record.Custromer != null &&
+          VSCustomerCodes.findIndex(
+            l => l === record.Custromer.trim().toLowerCase(),
+          ) > -1
+        ) {
+          const style = new StylesInYearModel(
+            record.ID,
+            record.PLMID,
+            record.CustromerCode,
+            record.Custromer,
+            record.Season,
+            record.Year,
+            record.Style,
+            record.Type,
+          );
+          stylesToReturn.push(style);
+        }
+      });
+      return stylesToReturn;
+    } catch (e) {
+      this.logger.error(
+        `getting style list from epixo-failed  ${year} , type ${type} ,error ` +
+          e,
+      );
+      throw new HttpException(e.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getAritziaStylesFromEpixo(year, type): Promise<StylesInYearModel[]> {
+    const VSCustomerCodes = ['aritzia'];
+    try {
+      this.logger.log(
+        `getting style list from epixo-started year ${year} , type ${type}`,
+      );
+      let pool = await sql.connect(config);
+      let output = await pool
+        .request()
+        .input('Year', sql.Int, year)
+        .input('Type', sql.VarChar(100), type)
+        .execute('spGetStylesByYear');
+      this.logger.log(
+        `getting style list from epixo-successfull ${year} , type ${type}`,
+      );
+
+      let stylesToReturn: StylesInYearModel[] = [];
+      output.recordsets[0].forEach(record => {
+        if (
+          record.Custromer != null &&
+          VSCustomerCodes.findIndex(
+            l => l === record.Custromer.trim().toLowerCase(),
+          ) > -1
+        ) {
+          const style = new StylesInYearModel(
+            record.ID,
+            record.PLMID,
+            record.CustromerCode,
+            record.Custromer,
+            record.Season,
+            record.Year,
+            record.Style,
+            record.Type,
+          );
+          stylesToReturn.push(style);
+        }
+      });
+      return stylesToReturn;
+    } catch (e) {
+      this.logger.error(
+        `getting style list from epixo-failed  ${year} , type ${type} ,error ` +
+          e.message,
+      );
+      throw new HttpException(e.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  async getPvhStylesFromEpixo(year, type): Promise<StylesInYearModel[]> {
+    const VSCustomerCodes = ['pvh'];
     try {
       this.logger.log(
         `getting style list from epixo-started year ${year} , type ${type}`,

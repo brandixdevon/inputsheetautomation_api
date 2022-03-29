@@ -5,6 +5,6 @@ export class LeadfactoryEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', unique: true })
+  @Column({ type: 'varchar'})
   name: string;
 }
