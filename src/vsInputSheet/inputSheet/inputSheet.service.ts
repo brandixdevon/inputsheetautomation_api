@@ -124,7 +124,7 @@ export class InputSheetService {
   }
 
   async getPvhStylesFromEpixo(year, type): Promise<StylesInYearModel[]> {
-    const VSCustomerCodes = ['pvh'];
+    const VSCustomerCodes = ['pvh - ck','pvh - tommy hilfiger'];
     try {
       this.logger.log(
         `getting style list from epixo-started year ${year} , type ${type}`,
